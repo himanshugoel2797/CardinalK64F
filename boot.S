@@ -353,6 +353,10 @@ _initialize_processor:
 		str r0, [r1]
 
 _hang:
+		ldr r1, =0x400FF04C
+		ldr r0, =0
+		orr r0, r0, #(1 << 22)	//Power on red light
+		str r0, [r1]
 		b _hang
 .size _sys_init, . - _sys_init
 
@@ -370,10 +374,12 @@ _PendSV_handler:
 _SysTick_handler:
 
 _default_handler:
+		cpsid i
+		push {r0-r12, lr}
 		mov r0, sp
-		push {lr}
+		add r0, r0, #56
 		bl Interrupt_default_handler
-		pop {pc}^
+		pop {r0-r12, pc}^
 
 		
 

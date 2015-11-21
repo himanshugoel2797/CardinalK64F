@@ -38,12 +38,14 @@ Interrupt_default_handler(Registers *regs)
 						:: "l"(int_no));
 
 	int_no &= 0xFF;
+	
+	if(int_no > 5){
+	uint32_t volatile *r2 = (uint32_t*)0x400FF04C;
+	r2[0] |= (1 << 21);
+	}
 
-	if(int_no > 16)
+	if(int_no >= 16)
 	{
-		uint32_t volatile *r2 = (uint32_t*)0x400FF048;
-		r2[0] |= (1 << 21);
-
 		int_no -= 16;
 		uint32_t volatile *r = (uint32_t*)ICPR_BASE;
 		r[int_no / 32] |= (1 << (int_no % 32));	//Clear the pending status
@@ -51,6 +53,4 @@ Interrupt_default_handler(Registers *regs)
 	}
 
 	if(handlers[int_no] != NULL)handlers[int_no](regs);
-
-	__asm__ volatile("cpsie i");	//Synchronize
 }
