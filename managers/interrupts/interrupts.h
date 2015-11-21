@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define INTERRUPT_COUNT 256
+#define INTERRUPT_COUNT 0x100
 
 typedef struct{
 	uint32_t r0;

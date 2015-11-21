@@ -8,13 +8,11 @@
 ivt_start:
 .long stack_top
 .long _sys_init
-
 .long _NMI_handler
 .long _HardFault_handler
 .long _MemManage_handler
 .long _BusFault_handler
 .long _UsageFault_handler
-
 .long 0
 .long 0
 .long 0
@@ -24,9 +22,6 @@ ivt_start:
 .long 0
 .long _PendSV_handler
 .long _SysTick_handler
-
-
-//IRQ Handlers
 .long _default_handler
 .long _default_handler
 .long _default_handler
@@ -73,19 +68,19 @@ ivt_start:
 .long _default_handler
 .long _default_handler
 .long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
-.long _default_handler
+.long _default_handler	//RTC
+.long _default_handler	//RTC seconds
+.long _default_handler	//PIT0
+.long _default_handler	//PIT1
+.long _default_handler	//PIT2
+.long _default_handler	//PIT3
+.long _default_handler	//PDB0
+.long _default_handler	//USB0
+.long _default_handler	//USBDCD
+.long _default_handler	//Reserved
+.long _default_handler	//DAC0
+.long _default_handler	//MCG
+.long _default_handler	//LTimer
 .long _default_handler	//Port A
 .long _default_handler	//Port B
 .long _default_handler	//Port C
@@ -349,16 +344,15 @@ _initialize_processor:
 
 		ldr r1, =0x400FF04C
 		ldr r0, =0
-		orr r0, r0, #(3 << 21)	//Power off red light
+		orr r0, r0, #(1 << 22)	//Power on red light
 		str r0, [r1]
 
 		ldr r1, =0x400FF10C
 		ldr r0, =0
-		orr r0, r0, #(1 << 26)
+		//orr r0, r0, #(1 << 26)
 		str r0, [r1]
 
 _hang:
-		cpsid i
 		b _hang
 .size _sys_init, . - _sys_init
 
