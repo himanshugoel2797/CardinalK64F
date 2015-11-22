@@ -8,20 +8,20 @@
 ivt_start:
 .long stack_top
 .long _sys_init
-.long _NMI_handler
-.long _HardFault_handler
-.long _MemManage_handler
-.long _BusFault_handler
-.long _UsageFault_handler
+.long _default_handler	//NMI
+.long _default_handler  //HardFault
+.long _default_handler	//MemManage
+.long _default_handler  //Bus fault
+.long _default_handler 	//Usage fault
 .long 0
 .long 0
 .long 0
 .long 0
-.long _SupervisorCall_handler
-.long _default_handler
+.long _default_handler	//SVC
+.long _default_handler	//Debug Monitor
 .long 0
-.long _PendSV_handler
-.long _SysTick_handler
+.long _default_handler	//PendSV
+.long _default_handler	//SysTick
 .long _default_handler
 .long _default_handler
 .long _default_handler
@@ -337,55 +337,21 @@ _initialize_processor:
 		ldr r0, =0
 		orr r0, r0, #(1 << 26)
 		str r0, [r1]
+		dmb
 
 		//Once we are done with initialization, we should enable the watchdog again, configure it and make sure to refresh it
 		bl _start
-
-
-		ldr r1, =0x400FF04C
-		ldr r0, =0
-		orr r0, r0, #(1 << 22)	//Power on red light
-		str r0, [r1]
-
-		ldr r1, =0x400FF10C
-		ldr r0, =0
-		//orr r0, r0, #(1 << 26)
-		str r0, [r1]
-
+		//ldr r1, =0x400FF04C
+		//ldr r0, =0
+		//orr r0, r0, #(1 << 22)	//Power on red light
+		//str r0, [r1]
 _hang:
-		ldr r1, =0x400FF04C
-		ldr r0, =0
-		orr r0, r0, #(1 << 22)	//Power on red light
-		str r0, [r1]
-		b _hang
-.size _sys_init, . - _sys_init
-
-.thumb_func
-
-
-_NMI_handler:
-_HardFault_handler:
-_MemManage_handler:
-_BusFault_handler:
-_UsageFault_handler:
-
-_SupervisorCall_handler:
-_PendSV_handler:
-_SysTick_handler:
-
-_default_handler:
 		cpsid i
-		push {r0-r12, lr}
-		mov r0, sp
-		add r0, r0, #56
-		bl Interrupt_default_handler
-		pop {r0-r12, pc}^
-
-		
-
-.size _default_handler, . - _default_handler
+		wfi
+		b _hang
 
 
+.size _sys_init, . - _sys_init
 
 .section .stack_info, "w"
 .thumb

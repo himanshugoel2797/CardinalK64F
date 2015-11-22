@@ -2,9 +2,9 @@ TARGET=os.bin
 
 CC=arm-none-eabi-gcc
 
-AS=arm-none-eabi-as
+AS=arm-none-eabi-gcc
 
-CFLAGS=-Werror -Wall -mcpu=cortex-m4 -mthumb -O0 -std=c11 -I.
+CFLAGS=-Werror -Wno-unused-function -Wall -mthumb -O0 -std=c11 -I. -mcpu=cortex-m4
 ASFLAGS=$(CFLAGS)
 
 OBJS=main.o boot.o drivers/wdog/wdog.o drivers/pit/pit.o managers/interrupts/interrupts.o drivers/pwm/pwm.o

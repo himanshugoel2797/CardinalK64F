@@ -13,27 +13,30 @@
 static InterruptHandler handlers[TIMER_COUNT];
 
 static void
-PIT_Interrupt0Handler(Registers *regs)
+PIT_Interrupt0Handler(void)
 {
-	if(handlers[0] != NULL)handlers[0](regs);
+	uint32_t volatile *r2 = (uint32_t*)0x400FF04C;
+	r2[0] |= (1 << 21);
+
+	if(handlers[0] != NULL)handlers[0]();
 	uint32_t volatile *r = (uint32_t*)PIT_BASE;
 	if(r[TIMER_MULTIPLIER_32 * 0 + FLAG_32_OFF])
 		r[TIMER_MULTIPLIER_32 * 0 + FLAG_32_OFF] = 1;
 }
 
 static void
-PIT_Interrupt1Handler(Registers *regs)
+PIT_Interrupt1Handler(void)
 {
-	if(handlers[1] != NULL)handlers[1](regs);
+	if(handlers[1] != NULL)handlers[1]();
 	uint32_t volatile *r = (uint32_t*)PIT_BASE;
 	if(r[TIMER_MULTIPLIER_32 * 1 + FLAG_32_OFF])
 		r[TIMER_MULTIPLIER_32 * 1 + FLAG_32_OFF] = 1;
 }
 
 static void
-PIT_Interrupt2Handler(Registers *regs)
+PIT_Interrupt2Handler(void)
 {
-	if(handlers[2] != NULL)handlers[2](regs);
+	if(handlers[2] != NULL)handlers[2]();
 	uint32_t volatile *r = (uint32_t*)PIT_BASE;
 
 	if(r[TIMER_MULTIPLIER_32 * 2 + FLAG_32_OFF])
@@ -41,9 +44,9 @@ PIT_Interrupt2Handler(Registers *regs)
 }
 
 static void
-PIT_Interrupt3Handler(Registers *regs)
+PIT_Interrupt3Handler(void)
 {
-	if(handlers[3] != NULL)handlers[3](regs);
+	if(handlers[3] != NULL)handlers[3]();
 	uint32_t volatile *r = (uint32_t*)PIT_BASE;
 	if(r[TIMER_MULTIPLIER_32 * 3 + FLAG_32_OFF])
 		r[TIMER_MULTIPLIER_32 * 3 + FLAG_32_OFF] = 1;

@@ -2,14 +2,30 @@
 
 #define ISE_BASE 0xE000E100
 #define ICPR_BASE 0xE000E280
+#define IPRE_BASE 0xE000E400
 
-static InterruptHandler handlers[INTERRUPT_COUNT];
+static InterruptHandler handlers[INTERRUPT_COUNT] __attribute__((aligned(1024)));
+
+extern void _default_handler(void);
 
 void
 InterruptManager_Init(void)
 {
 	for(int i = 0; i < INTERRUPT_COUNT; i++)
-		handlers[i] = NULL;
+		handlers[i] = (InterruptHandler)_default_handler;
+
+	handlers[0] = (InterruptHandler)*(uint32_t*)0;
+	handlers[1] = (InterruptHandler)*(uint32_t*)4;
+
+	uint8_t volatile *r = (uint8_t*)IPRE_BASE;
+	for(int i = 0; i < 240; i++)
+		r[i] = 0x00;
+
+	__asm__ volatile("ldr r0,=0xE000ED08\n\t"
+					 "str %0, [r0]"
+					 :
+					 : "l"(handlers)
+					 : "r0");
 
 	__asm__ volatile("cpsie i");
 }
@@ -30,27 +46,7 @@ InterruptManager_Register(uint16_t			int_no,
 }
 
 void
-Interrupt_default_handler(Registers *regs)
+_default_handler(void)
 {
-	uint32_t int_no = 0;
-	__asm__ volatile("ldr %0, =0xE000ED04\n\t"
-					 "ldr %0, [%0]"
-						:: "l"(int_no));
-
-	int_no &= 0xFF;
-	
-	if(int_no > 5){
-	uint32_t volatile *r2 = (uint32_t*)0x400FF04C;
-	r2[0] |= (1 << 21);
-	}
-
-	if(int_no >= 16)
-	{
-		int_no -= 16;
-		uint32_t volatile *r = (uint32_t*)ICPR_BASE;
-		r[int_no / 32] |= (1 << (int_no % 32));	//Clear the pending status
-		int_no += 16;	
-	}
-
-	if(handlers[int_no] != NULL)handlers[int_no](regs);
+	return;
 }
